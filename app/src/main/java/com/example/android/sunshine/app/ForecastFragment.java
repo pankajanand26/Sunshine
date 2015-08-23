@@ -1,9 +1,12 @@
 package com.example.android.sunshine.app;
 
 import android.app.Fragment;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,6 +15,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -58,32 +62,55 @@ public class ForecastFragment extends Fragment {
         public boolean onOptionsItemSelected(MenuItem item) {
             // Handle item selection
             int id= item.getItemId();
+
             if (id==R.id.action_refresh){
-               FetchWeatherTask fetchtask = new FetchWeatherTask();
-               fetchtask.execute("94043");
-               return true;
+
+                updateWeather();
+                return true;
+            }
+
+            if (id==R.id.action_settings){
+                return true;
             }
             return super.onOptionsItemSelected(item);
         }
+
+
+    private void updateWeather(){
+        FetchWeatherTask fetchtask = new FetchWeatherTask();
+        SharedPreferences prefs= PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String location = prefs.getString(getString(R.string.pref_location_key),getString(R.string.pref_location_default));
+        fetchtask.execute(location);
+
+    }
+
+    @Override
+    public void onStart(){
+        super.onStart();
+        updateWeather();
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-        String[] forcast_array={"Today-Sunnt-88/63",
-                    "Tomorrow-Foggy-70/46",
-                    "Weds-Cloudy-72/63",
-                    "Thurs-Rainy-64/51",
-                    "Fri-Foggy-70/46",
-                    "Sat-Sunny-76/68"};
-        List<String> week_forcast=new ArrayList<String>(Arrays.asList(forcast_array));
 
-        mForcastAadapter= new ArrayAdapter<String>(getActivity(),R.layout.list_item_forcast,R.id.list_item_forecast_textview,week_forcast);
+        mForcastAadapter= new ArrayAdapter<String>(getActivity(),R.layout.list_item_forcast,R.id.list_item_forecast_textview,new ArrayList<String>());
 
         ListView listviw= (ListView) rootView.findViewById(R.id.listView_forcast);
 
         listviw.setAdapter(mForcastAadapter);
 
+        listviw.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                // The fileUrl is a string URL, such as "http://www.example.com/image.png"
+
+                String forcast=mForcastAadapter.getItem(i);
+                Intent intent1 = new Intent(getActivity(), ForecastDetail.class).putExtra(Intent.EXTRA_TEXT,forcast);
+                startActivity(intent1);
+            }
+        });
         return rootView;
     }
 
