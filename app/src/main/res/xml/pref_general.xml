@@ -10,4 +10,11 @@
         android:inputType="text"
         android:singleLine="true" />
 
+    <ListPreference
+        android:key="@string/pref_system"
+        android:title="@string/pref_system_title"
+        android:entries="@array/pref_system_entries"
+        android:entryValues="@array/pref_system_values"
+        android:defaultValue="@string/pref_syncConnectionTypes_default" />
+
 </PreferenceScreen>
