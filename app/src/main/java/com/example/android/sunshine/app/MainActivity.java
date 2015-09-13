@@ -1,13 +1,20 @@
 package com.example.android.sunshine.app;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ShareActionProvider;
 
 
 public class MainActivity extends ActionBarActivity {
+
+    private ShareActionProvider mShareActionProvider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +47,19 @@ public class MainActivity extends ActionBarActivity {
             Intent intent1 = new Intent(this, SettingsActivity.class);
             startActivity(intent1);
 
+            return true;
+        }
+
+
+        if (id==R.id.action_location){
+            SharedPreferences prefs= PreferenceManager.getDefaultSharedPreferences(this);
+            String location = prefs.getString(getString(R.string.pref_location_key), getString(R.string.pref_location_default));
+            Uri gmmIntentUri = Uri.parse("geo:0,0?q=" + location);
+            Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+            PackageManager pm =getPackageManager();
+            if(mapIntent.resolveActivity(pm)!=null) {
+                startActivity(mapIntent);
+            }
             return true;
         }
 
